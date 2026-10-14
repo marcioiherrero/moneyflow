@@ -1,0 +1,14 @@
+# Para insalar o sqlx-cli:
+cargo install sqlx-cli
+
+# Para criar o banco de dados:
+sqlx database create
+
+# Para criar um arquivo de migração:
+sqlx migrate add create_user_table
+
+# Para criar um arquivo de migração com opção de reverter:
+# Neste caso, o migrate cria dois arquivos:
+# create_user_table.up.sql   <-- script para criação
+# create_user_table.down.sql <-- script para exclusão
+sqlx migrate add -r create_user_table

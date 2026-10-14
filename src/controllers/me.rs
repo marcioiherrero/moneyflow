@@ -1,0 +1,14 @@
+use actix_web::{HttpMessage, HttpRequest, Responder, get, post};
+
+use crate::utils;
+
+#[get("/me")]
+pub async fn get_profile(req: HttpRequest) -> impl Responder {
+  let user_id = utils::get_user_id(&req);
+  format!("{}", user_id)
+}
+
+#[post("/me")]
+pub async fn update_profile() -> impl Responder {
+  "Update Profile"
+}

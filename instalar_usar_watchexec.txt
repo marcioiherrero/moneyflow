@@ -1,0 +1,62 @@
+Durante o desenvolvimento, pode ser muito útil fazer com que o Cargo
+recompile automaticamente o código sempre que ocorrerem alterações
+nos arquivos. Isso pode ser feito facilmente utilizando o watchexec.
+https://github.com/watchexec/watchexec
+
+O comando a seguir executa ou reinicia o cargo run sempre que um arquivo
+com a extensão rs é alterado dentro do diretório atual, incluindo seus
+subdiretórios:
+
+watchexec -e rs -r cargo run
+
+
+Se você quiser monitorar todos os arquivos de um diretório específico,
+poderá utilizar o argumento -w:
+
+watchexec -w src -r cargo run
+
+
+Nota histórica
+
+Uma versão antiga desta página recomendava utilizar uma combinação de
+systemfd e listenfd, mas essa abordagem apresenta diversas particularidades
+que podem causar problemas (gotchas) e era difícil de integrar corretamente,
+especialmente quando fazia parte de um fluxo de trabalho de desenvolvimento
+mais amplo.
+
+Consideramos que o watchexec é suficiente para implementar o recarregamento
+automático (auto-reloading).
+
+Se você ainda quiser utilizar o systemfd e o listenfd, tenha em mente os
+seguintes problemas comuns:
+
+- São necessárias alterações no código: é preciso modificar o código para
+que ele aceite um listener fornecido externamente. Isso exige configurações
+adicionais (e, frequentemente, uma dependência extra) no código do servidor,
+em vez de simplesmente utilizar um bind.
+
+- É necessário desabilitar a verificação de LISTEN_PID: quando um processo
+monitorador de arquivos (watcher) fica entre o systemfd e o servidor —
+por exemplo, o cargo watch ou o watchexec —, é necessário desabilitar a
+verificação de LISTEN_PID (por exemplo, utilizando systemfd --no-pid).
+Caso contrário, o listenfd ignora o socket recebido, e a aplicação tenta
+novamente associar-se a uma porta que já está em uso.
+
+- A ativação de sockets pelo systemd é exclusiva do Linux: o recurso de
+ativação de sockets do próprio systemd funciona apenas no Linux.
+O systemfd simula o compartilhamento de sockets no macOS e no Linux,
+enquanto utiliza um protocolo personalizado no Windows.
+Portanto, o comportamento varia entre as plataformas.
+
+- A porta pode continuar parecendo aberta durante a recompilação:
+como o systemfd mantém o socket de escuta aberto enquanto a recompilação
+acontece, a porta pode parecer estar "aberta" mesmo quando a aplicação
+ainda não está em execução. Durante recompilações demoradas ou que falham,
+as requisições podem ficar aguardando indefinidamente.
+
+Observação sobre os comandos: o watchexec monitora as alterações nos arquivos
+e executa novamente o comando especificado. Nesse caso, o cargo run recompila
+o projeto Rust quando necessário e inicia a aplicação novamente.
+
+A principal vantagem é que você não precisa parar e executar manualmente o
+servidor a cada alteração no código.

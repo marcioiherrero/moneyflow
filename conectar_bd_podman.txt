@@ -1,0 +1,44 @@
+PostgreSQL
+
+1. Conectar diretamente de dentro do contêiner (Recomendado)
+------------------------------------------------------------
+
+Se você não tem o cliente psql instalado na sua máquina física,
+execute o comando podman exec para abrir o terminal interativo do
+banco de dados:
+
+podman exec -it NOME_DO_CONTAINER psql -U nome_usuario -d nome_banco
+
+• NOME_DO_CONTAINER: O nome que você deu ao seu contêiner (ex: postgres ou
+                     meu-postgres).
+• -U nome_usuario: O usuário do banco (o padrão do PostgreSQL costuma ser postgres).
+• -d nome_banco: O nome do banco de dados que deseja consultar (opcional, se omitido
+                 ele tenta conectar ao banco com o mesmo nome do usuário).
+
+Exemplo prático:
+
+podman exec -it postgres psql -U postgres
+
+2. Conectar a partir da sua máquina local (Host)
+------------------------------------------------
+
+Se você já possui o cliente psql instalado localmente e mapeou a porta do
+contêiner para o seu host (geralmente usando -p 5432:5432 na criação),
+pode conectar usando o localhost:
+
+psql -h localhost -p 5432 -U postgres
+(Será solicitada a senha configurada na criação do contêiner).
+
+Comandos úteis após conectar (postgres=#)
+--------------------------------------------
+
+Uma vez dentro do terminal do PostgreSQL, você já pode rodar suas queries.
+
+Veja alguns comandos de navegação:
+
+• \l : Lista todos os bancos de dados disponíveis.
+• \c nome_do_banco : Conecta a um banco de dados específico.
+• \dt : Lista as tabelas do banco atual.
+• SELECT * FROM sua_tabela; : Executa uma consulta SQL padrão
+                              (lembre-se do ponto e vírgula ;).
+• \q : Sai do terminal do PostgreSQL.
